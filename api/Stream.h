@@ -67,7 +67,7 @@ class Stream : public Print
 
   void setTimeout(unsigned long timeout);  // sets maximum milliseconds to wait for stream data, default is 1 second
   unsigned long getTimeout(void) { return _timeout; }
-  
+
   bool find(const char *target);   // reads data from the stream until the target string is found
   bool find(const uint8_t *target) { return find ((const char *)target); }
   // returns true if target string is found, false if timed out (see setTimeout)
@@ -94,7 +94,7 @@ class Stream : public Print
   float parseFloat(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR);
   // float version of parseInt
 
-  size_t readBytes( char *buffer, size_t length); // read chars from stream into buffer
+  virtual size_t readBytes( char *buffer, size_t length); // read chars from stream into buffer
   size_t readBytes( uint8_t *buffer, size_t length) { return readBytes((char *)buffer, length); }
   // terminates if length characters have been read or timeout (see setTimeout)
   // returns the number of characters placed in the buffer (0 means no valid data found)

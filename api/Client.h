@@ -23,6 +23,7 @@
 #include "IPAddress.h"
 
 namespace arduino {
+// TODO define explicit poll method
 
 // The objective of this interface is to split the definition of a Client that
 // works with streams and one that works with discrete sized messages
@@ -40,9 +41,10 @@ public:
 
 class Client : public Stream, ClientConnect {
 public:
-  virtual size_t write(uint8_t) = 0;
-  virtual size_t write(const uint8_t *buf, size_t size) = 0;
-  virtual int read(uint8_t *buf, size_t size) = 0;
+  // Note: already defined in print and Stream
+  // virtual size_t write(uint8_t) = 0;
+  // virtual size_t write(const uint8_t *buf, size_t size) = 0;
+  // virtual int read(uint8_t *buf, size_t size) = 0;
   virtual void stop() = 0;
 protected:
   uint8_t* rawIPAddress(IPAddress& addr) { return addr.raw_address(); }; // FIXME this is a utility function
