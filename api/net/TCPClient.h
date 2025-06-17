@@ -22,9 +22,39 @@ namespace arduino { namespace net {
 //    - middleware definition: between TCPclient and the user there are multiple middleware layers
 //      that act as layer 5/6 of iso/osi stack, TLS is one of them (are there any others?)
 //      - sort of client embedding, which may be more flexible
-//        - I always instantiate a TCPClient, but if I need Http, I will add it as middleware to the current instance
+//        + I always instantiate a TCPClient, but if I need Http, I will add it as middleware to the current instance
 //          + If HttpClient has different specifics from a TCPClient they might be hard to expose
 //    - It could be nice to have an explicit connectSSL in client which enables SSL
+
+// We can make this Client available to platforms with enough resources.
+
+/* The idea of client factories is that they are going to be defined by the platform, so that depending on the network stack
+ * implementation one can make use of a generic TCP client. For instance zephyr or mbed core can apply an implementation
+ * that is not dependant on the network interface that is being used. on other cores, on which local routing is not implemented
+ * the client is bound to the interface, thus depending on which one is the default interface one has to select the proper class
+ *
+ * Example zephyr, this can be placed in the library SocketWrapper:
+ *
+ * void __setClientFactory() __attribute__((constructor)) {
+ *   TCPClientConnect::setFactory([]() {
+ *       new ZephyrClient()
+ *     );
+ *   });
+ * }
+ *
+ * Example Mbed os, this can be placed in the library Ethernet:
+ *
+ * void __setClientFactory() __attribute__((constructor)) {
+ *   // check that there is no other factory already defined. First defined First used
+ *   if(TCPClientConnect::factory != nullptr) {
+ *      TCPClientConnect::setFactory([]() {
+ *        return unique_ptr(
+ *          new EthernetClient()
+ *        );
+ *      });
+ *   }
+ * }
+ */
 
 class TCPClientConnect: public ClientConnect {
 public:
@@ -43,7 +73,7 @@ public:
   uint8_t connected() override;
   operator bool() override;
 
-protected:
+protected: // TODO should this be private?
   // the factory should provide a way to allocate and deallocate the client
   // there should be a default factory that uses to use the default network interface
   static std::function<std::unique_ptr<Client>()> _factory;
