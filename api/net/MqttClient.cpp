@@ -1,7 +1,9 @@
 #include "MqttClient.h"
 #include <Arduino.h>
 
-std::function<std::unique_ptr<MqttClientInterface>()>* MqttClient::_factory = nullptr;
+// std::function<std::unique_ptr<MqttClientInterface>()>* MqttClient::_factory = nullptr;
+// std::function<std::unique_ptr<MqttClientInterface>()> MqttClient::_factory;
+static std::function<std::unique_ptr<MqttClientInterface>()>* _factory=nullptr;
 
 
 MqttClient::MqttClient()
@@ -11,6 +13,7 @@ MqttClient::MqttClient()
 
 //TODO define constant value for pimpl not instantiated
 int MqttClient::connect(IPAddress ip, uint16_t port) {
+    checkInstance();
     return impl != nullptr? impl->connect(ip, port) : -1;
 }
 
@@ -24,6 +27,7 @@ void MqttClient::disconnect() {
     if(impl != nullptr) {
         impl->disconnect();
     }
+    // TODO we may delete the internal client
 }
 
 uint8_t MqttClient::connected() {
@@ -74,10 +78,19 @@ void MqttClient::setClientId(char* client_id)  {
 
 void MqttClient::checkInstance() {
     if(impl == nullptr && _factory != nullptr) {
+        // impl = _factory();
         impl = _factory->operator()();
 
         // if client id has been set before the implementation has been instantiated
         // set it in the implementation
         impl->setClientId(_clientid);
+        impl->_cbk = _cbk;
     }
+}
+
+void MqttClient::setFactory(std::function<std::unique_ptr<MqttClientInterface>()> factory) {
+    // FIXME find a better way to solve constructor call order
+    static std::function<std::unique_ptr<MqttClientInterface>()> f = factory;
+    _factory = &f;
+    // _factory = factory;
 }

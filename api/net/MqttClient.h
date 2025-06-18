@@ -16,7 +16,8 @@ using Topic = const char* const;
 
 // for incoming published messages
 // TODO double check with typename
-using MqttReceiveCallback = std::function<void(Topic, const uint8_t[], size_t)>;
+// using MqttReceiveCallback = std::function<void(Topic, const uint8_t[], size_t)>;
+using MqttReceiveCallback = std::function<void(Topic, Stream&)>;
 
 // TODO define callback for mqtt events. one should be the default, but the user can always change it
 
@@ -31,7 +32,8 @@ enum MqttQos: uint8_t {
 // TODO define mqtt version
 
 constexpr MqttQos QosDefault = MqttQos0;
-constexpr size_t MqttClientIdMaxLength = 256;
+// constexpr size_t MqttClientIdMaxLength = 256;
+constexpr size_t MqttClientIdMaxLength = 40;
 
 // TODO make it possible to generate the client id if none is provided during connect
 //      + should it be performed by the derived class or by the interface?
@@ -57,13 +59,15 @@ public:
 
     // TODO Will stuff
     // TODO auth stuff, also related to MQTT 5.0
+
+    // TODO single callback for every incoming message or a callback for everything?
+    // FIXME make this private
+    MqttReceiveCallback _cbk;
+
 protected:
     // TODO is it better to use the one provided from outside or copy it locally?
     char* _clientid;
     // char _clientid[MqttClientIdMaxLength+1];
-
-    // TODO single callback for every incoming message or a callback for everything?
-    MqttReceiveCallback _cbk;
 };
 
 
@@ -86,15 +90,11 @@ public:
     void poll() override;
     error_t ping() override;
 
-    static void setFactory(std::function<std::unique_ptr<MqttClientInterface>()> factory) {
-        // FIXME find a better way to solve constructor call order
-        static std::function<std::unique_ptr<MqttClientInterface>()> f = factory;
-        _factory = &f;
-    }
-
+    // FIXME use a & or && parameter
+    static void setFactory(std::function<std::unique_ptr<MqttClientInterface>()> factory);
     void setClientId(char* client_id = nullptr) override;
 protected:
-    static std::function<std::unique_ptr<MqttClientInterface>()> *_factory;
+    // static std::function<std::unique_ptr<MqttClientInterface>()> _factory;
 
     std::unique_ptr<MqttClientInterface> impl;
 private:
