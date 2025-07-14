@@ -49,25 +49,18 @@ public:
     virtual void poll() = 0;
     virtual error_t ping() = 0;
 
-    virtual void setReceiveCallback(MqttReceiveCallback cbk) { _cbk = cbk; }
+    // TODO make this pure virtual?
+    virtual void setReceiveCallback(MqttReceiveCallback cbk) = 0;
 
     // nullptr means generate it randomly
-    // TODO should this be pure virtual?
-    virtual void setClientId(char* client_id = nullptr) { // TODO put this in .cpp file
-        _clientid = client_id;
-    }
+    virtual void setClientId(const char* client_id = nullptr) = 0;
 
-    // TODO Will stuff
-    // TODO auth stuff, also related to MQTT 5.0
+    // password may be null, if username is null password won't be used
+    virtual void setAuth(const char* username, const char* password=nullptr) = 0;
 
-    // TODO single callback for every incoming message or a callback for everything?
-    // FIXME make this private
-    MqttReceiveCallback _cbk;
+    virtual void setWill(Topic willTopic, const uint8_t* will_message, size_t will_size) = 0;
 
-protected:
-    // TODO is it better to use the one provided from outside or copy it locally?
-    char* _clientid;
-    // char _clientid[MqttClientIdMaxLength+1];
+    // TODO MQTT 5.0 stuff
 };
 
 
@@ -90,9 +83,14 @@ public:
     void poll() override;
     error_t ping() override;
 
+    void setReceiveCallback(MqttReceiveCallback cbk) override;
+
     // FIXME use a & or && parameter
     static void setFactory(std::function<std::unique_ptr<MqttClientInterface>()> factory);
-    void setClientId(char* client_id = nullptr) override;
+    void setClientId(const char* client_id = nullptr) override;
+
+    void setAuth(const char* username, const char* password=nullptr) override;
+    void setWill(Topic willTopic, const uint8_t* will_message, size_t will_size) override;
 protected:
     // static std::function<std::unique_ptr<MqttClientInterface>()> _factory;
 

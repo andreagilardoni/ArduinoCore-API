@@ -68,11 +68,31 @@ error_t MqttClient::ping() {
     return impl != nullptr? impl->ping() : -1;
 }
 
-// TODO call impl set client id when instantiating the implementation
-void MqttClient::setClientId(char* client_id)  {
-    MqttClientInterface::setClientId(client_id);
+void MqttClient::setClientId(const char* client_id)  {
+    checkInstance();
     if(impl != nullptr) {
         impl->setClientId(client_id);
+    }
+}
+
+void MqttClient::setAuth(const char* username, const char* password) {
+    checkInstance();
+    if(impl != nullptr) {
+        impl->setAuth(username, password);
+    }
+}
+
+void MqttClient::setWill(Topic willTopic, const uint8_t* will_message, size_t will_size) {
+    checkInstance();
+    if(impl != nullptr) {
+        impl->setWill(willTopic, will_message, will_size);
+    }
+}
+
+void MqttClient::setReceiveCallback(MqttReceiveCallback cbk) {
+    checkInstance();
+    if(impl != nullptr) {
+        impl->setReceiveCallback(cbk);
     }
 }
 
@@ -80,11 +100,6 @@ void MqttClient::checkInstance() {
     if(impl == nullptr && _factory != nullptr) {
         // impl = _factory();
         impl = _factory->operator()();
-
-        // if client id has been set before the implementation has been instantiated
-        // set it in the implementation
-        impl->setClientId(_clientid);
-        impl->_cbk = _cbk;
     }
 }
 
