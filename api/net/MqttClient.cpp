@@ -82,10 +82,10 @@ void MqttClient::setAuth(const char* username, const char* password) {
     }
 }
 
-void MqttClient::setWill(Topic willTopic, const uint8_t* will_message, size_t will_size) {
+void MqttClient::setWill(Topic willTopic, const uint8_t* will_message, size_t will_size, MqttQos qos) {
     checkInstance();
     if(impl != nullptr) {
-        impl->setWill(willTopic, will_message, will_size);
+        impl->setWill(willTopic, will_message, will_size, qos);
     }
 }
 

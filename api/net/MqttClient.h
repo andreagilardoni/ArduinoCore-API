@@ -57,7 +57,9 @@ public:
     // password may be null, if username is null password won't be used
     virtual void setAuth(const char* username, const char* password=nullptr) = 0;
 
-    virtual void setWill(Topic willTopic, const uint8_t* will_message, size_t will_size, MqttQos qos=QosDefault) = 0;
+    virtual void setWill(
+        Topic willTopic, const uint8_t* will_message,
+        size_t will_size, MqttQos qos=QosDefault) = 0;
 
     // TODO MQTT 5.0 stuff
 };
@@ -89,7 +91,9 @@ public:
     void setClientId(const char* client_id = nullptr) override;
 
     void setAuth(const char* username, const char* password=nullptr) override;
-    void setWill(Topic willTopic, const uint8_t* will_message, size_t will_size) override;
+    void setWill(
+        Topic willTopic, const uint8_t* will_message,
+        size_t will_size, MqttQos qos=QosDefault) override;
 protected:
     // static std::function<std::unique_ptr<MqttClientInterface>()> _factory;
 
