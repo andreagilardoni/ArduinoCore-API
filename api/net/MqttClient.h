@@ -49,7 +49,6 @@ public:
     virtual void poll() = 0;
     virtual error_t ping() = 0;
 
-    // TODO make this pure virtual?
     virtual void setReceiveCallback(MqttReceiveCallback cbk) = 0;
 
     // nullptr means generate it randomly
@@ -58,7 +57,7 @@ public:
     // password may be null, if username is null password won't be used
     virtual void setAuth(const char* username, const char* password=nullptr) = 0;
 
-    virtual void setWill(Topic willTopic, const uint8_t* will_message, size_t will_size) = 0;
+    virtual void setWill(Topic willTopic, const uint8_t* will_message, size_t will_size, MqttQos qos=QosDefault) = 0;
 
     // TODO MQTT 5.0 stuff
 };
